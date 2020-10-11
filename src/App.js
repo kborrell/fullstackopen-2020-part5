@@ -9,17 +9,15 @@ import Togglable from './components/Togglable'
 const LogIn = ({ handleSubmit, handleUsernameChange, handlePasswordChange, username, password }) => {
   return (
     <div>
-      <div>
-        <form onSubmit={handleSubmit}>
-          <div>
-            username <input type="text" value={username} name="Username" onChange={handleUsernameChange} />
-          </div>
-          <div>
-            password <input type="text" value={password} name="Password" onChange={handlePasswordChange} />
-          </div>
-          <button type="submit">login</button>
-        </form>
-      </div>
+      <form className='login-form' onSubmit={handleSubmit}>
+        <div>
+          username <input id='username' type="text" value={username} name="Username" onChange={handleUsernameChange} />
+        </div>
+        <div>
+          password <input id='password' type="text" value={password} name="Password" onChange={handlePasswordChange} />
+        </div>
+        <button id='login-button' type="submit">login</button>
+      </form>
     </div>
   )
 }

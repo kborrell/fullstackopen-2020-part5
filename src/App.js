@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import './App.css'
+import CreateBlog from './components/CreateBlog'
+import Togglable from './components/Togglable'
 
 const LogIn = ({ handleSubmit, handleUsernameChange, handlePasswordChange, username, password }) => {
   return (
@@ -30,51 +32,26 @@ const LoggedIn = ({ user, handleLogout }) => {
   )
 }
 
-const BlogList = ({ blogs }) => {
+const BlogList = ({ blogs, user, handleLikeBlog, handleRemoveBlog }) => {
   return (
     <div>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} user={ user } handleLikeBlog={ handleLikeBlog } handleRemoveBlog={ handleRemoveBlog } />
       )}
     </div>
   )
 }
 
-const CreateBlog = ({ handleCreateBlog }) => {
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
+const Blogs = ({ blogs, user, handleLogout, handleCreateBlog, handleLikeBlog, handleRemoveBlog }) => {
+  const blogFormRef = useRef()
 
-  const handleOnSubmit = async (event) => {
-    event.preventDefault()
-    const blog = { title, author, url }
-    const succeed = await handleCreateBlog(blog)
-    if (succeed) {
-      setTitle('')
-      setAuthor('')
-      setUrl('')
-    }
-  }
-
-  return (
-    <div>
-      <h2>create new</h2>
-      <form onSubmit={handleOnSubmit}>
-        <div>title <input type="text" value={title} name="Title" onChange={ ({ target }) => setTitle(target.value) } /></div>
-        <div>author <input type="text" value={author} name="Author" onChange={ ({ target }) => setAuthor(target.value) } /></div>
-        <div>url <input type="text" value={url} name="Url" onChange={ ({ target }) => setUrl(target.value) } /></div>
-        <button type="submit">create</button>
-      </form>
-    </div>
-  )
-}
-
-const Blogs = ({ blogs, user, handleLogout, handleCreateBlog }) => {
   return (
     <div>
       <LoggedIn user={ user } handleLogout={ handleLogout } />
-      <CreateBlog handleCreateBlog={ handleCreateBlog } />
-      <BlogList blogs={ blogs }/>
+      <Togglable buttonLabel="new blog" ref={ blogFormRef }>
+        <CreateBlog handleCreateBlog={ handleCreateBlog } ref={ blogFormRef } />
+      </Togglable>
+      <BlogList blogs={ blogs } user={ user } handleLikeBlog={ handleLikeBlog } handleRemoveBlog={ handleRemoveBlog }/>
     </div>
   )
 }
@@ -94,9 +71,12 @@ const App = () => {
   const [user, setUser] = useState(undefined)
   const [infoMessage, setInfoMessage] = useState(undefined)
 
+  const sortBlogsByLikes = (a, b) => b.likes - a.likes
+
   useEffect(() => {
     const fetchData = async () => {
       const blogs = await blogService.getAll()
+      blogs.sort(sortBlogsByLikes)
       setBlogs(blogs)
     }
     fetchData()
@@ -138,10 +118,33 @@ const App = () => {
 
   const handleCreateBlog = async (blog) => {
     const createdBlog = await blogService.create(blog)
-    setBlogs(blogs.concat(createdBlog))
+    var newBlogs = blogs.concat(createdBlog).sort(sortBlogsByLikes)
+    setBlogs(newBlogs)
     setInfoMessage({ message: `${blog.title} by ${blog.author} added`, isError: false })
     setTimeout(() => setInfoMessage(undefined), 5000)
     return true
+  }
+
+  const handleLikeBlog = async (blog) => {
+    const updatedBlog = await blogService.like(blog)
+    const newBlogs = blogs.map((b) => {
+      if (b.id === updatedBlog.id) {
+        b.likes = updatedBlog.likes
+      }
+      return b
+    })
+    setBlogs(newBlogs.sort(sortBlogsByLikes))
+  }
+
+  const handleRemoveBlog = async (blog) => {
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`))
+    {
+      if (await blogService.remove(blog))
+      {
+        const newBlogs = blogs.filter((b) => b.id !== blog.id)
+        setBlogs(newBlogs.sort(sortBlogsByLikes))
+      }
+    }
   }
 
   if (user) {
@@ -149,7 +152,14 @@ const App = () => {
       <div>
         <h2>blogs</h2>
         { infoMessage && <Message message={ infoMessage } /> }
-        <Blogs blogs={ blogs } user={ user } handleLogout={ handleLogout } handleCreateBlog={ handleCreateBlog } setInfoMessage={ (message) => setInfoMessage(message) } /> 
+        <Blogs 
+          blogs={ blogs } 
+          user={ user } 
+          handleLogout={ handleLogout } 
+          handleCreateBlog={ handleCreateBlog } 
+          handleLikeBlog={ handleLikeBlog } 
+          handleRemoveBlog={ handleRemoveBlog }
+          setInfoMessage={ (message) => setInfoMessage(message) } /> 
       </div>
     )
   } else {

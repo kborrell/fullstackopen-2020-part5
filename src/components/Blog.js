@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 
 const Blog = ({ blog, user, handleLikeBlog, handleRemoveBlog }) => {
   const blogStyle = {
@@ -9,12 +10,10 @@ const Blog = ({ blog, user, handleLikeBlog, handleRemoveBlog }) => {
     marginBottom: 5,
     paddingBottom: 10
   }
-  
+
   const [detailsVisible, setDetailsVisible] = useState(false)
   const showWhenVisible = { display: detailsVisible ? '' : 'none' }
-  const showWhenBlogOwned = { display: user.username === blog.user.username ? '' : 'none'}
-
-  console.log(user)
+  const showWhenBlogOwned = { display: user.username === blog.user.username ? '' : 'none' }
 
   const toggleDetails = () => {
     setDetailsVisible(!detailsVisible)
@@ -41,6 +40,23 @@ const Blog = ({ blog, user, handleLikeBlog, handleRemoveBlog }) => {
       </div>
     </div>
   )
+}
+
+Blog.propTypes = {
+  blog: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    author: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired,
+    likes: PropTypes.number.isRequired,
+    user: PropTypes.shape({
+      username: PropTypes.string.isRequired
+    })
+  }),
+  user: PropTypes.shape({
+    username: PropTypes.string.isRequired
+  }),
+  handleLikeBlog: PropTypes.func.isRequired,
+  handleRemoveBlog: PropTypes.func.isRequired
 }
 
 export default Blog

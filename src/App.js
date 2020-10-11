@@ -58,7 +58,7 @@ const Blogs = ({ blogs, user, handleLogout, handleCreateBlog, handleLikeBlog, ha
 
 const Message = ({ message }) => {
   return (
-    <div className={message.isError ? "error" : "success"}>
+    <div className={message.isError ? 'error' : 'success'}>
       { message.message }
     </div>
   )
@@ -93,7 +93,7 @@ const App = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault()
-    
+
     try {
       const user = await loginService.login({ username, password })
       setUser(user)
@@ -152,14 +152,14 @@ const App = () => {
       <div>
         <h2>blogs</h2>
         { infoMessage && <Message message={ infoMessage } /> }
-        <Blogs 
-          blogs={ blogs } 
-          user={ user } 
-          handleLogout={ handleLogout } 
-          handleCreateBlog={ handleCreateBlog } 
-          handleLikeBlog={ handleLikeBlog } 
+        <Blogs
+          blogs={ blogs }
+          user={ user }
+          handleLogout={ handleLogout }
+          handleCreateBlog={ handleCreateBlog }
+          handleLikeBlog={ handleLikeBlog }
           handleRemoveBlog={ handleRemoveBlog }
-          setInfoMessage={ (message) => setInfoMessage(message) } /> 
+          setInfoMessage={ (message) => setInfoMessage(message) } />
       </div>
     )
   } else {
@@ -168,10 +168,10 @@ const App = () => {
         <h2>log in to application</h2>
         { infoMessage && <Message message={ infoMessage } /> }
         <LogIn
-          handleSubmit={handleLogin} 
+          handleSubmit={handleLogin}
           handleUsernameChange={ ({ target }) => setUsername(target.value) }
           handlePasswordChange={ ({ target }) => setPassword(target.value) }
-          username={ username } 
+          username={ username }
           password={ password }
           setInfoMessage={ (message) => setInfoMessage(message) }
         />

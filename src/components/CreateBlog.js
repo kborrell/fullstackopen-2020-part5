@@ -30,4 +30,6 @@ const CreateBlog = React.forwardRef(({ handleCreateBlog }, ref) => {
   )
 })
 
+CreateBlog.displayName = 'CreateBlog'
+
 export default CreateBlog
